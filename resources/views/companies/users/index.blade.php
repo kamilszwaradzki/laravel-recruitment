@@ -15,6 +15,16 @@
                 </div>
             @endif
 
+            @php
+                $isCompanyMember = auth()->user()->companies()->where('company_id', $company->id)->exists();
+            @endphp
+
+            @if(!$isCompanyMember)
+                <div class="alert alert-warning">
+                    <strong>Notice:</strong> You are not a member of this company. Only company members can remove users.
+                </div>
+            @endif
+
             <!-- Formularz dodawania użytkownika -->
             <div class="card mb-4">
                 <div class="card-header">
@@ -64,15 +74,24 @@
                             <tbody>
                             @forelse ($users as $user)
                                 <tr>
-                                    <td>{{ $user->name }}</td>
-                                    <td>{{ $user->email }}</td>
-                                    <td>{{ $user->pivot->created_at->format('Y-m-d H:i') }}</td>
                                     <td>
-                                        <form action="{{ route('companies.users.detach', [$company, $user]) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Remove this user from company?')">Remove</button>
-                                        </form>
+                                        {{ $user->name }}
+                                        @if($user->id === auth()->id())
+                                            <span class="badge bg-info">You</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $user->email }}</td>
+                                    <td>{{ $user->pivot->created_at ? $user->pivot->created_at->format('Y-m-d H:i') : 'N/A' }}</td>
+                                    <td>
+                                        @if($isCompanyMember)
+                                            <form action="{{ route('companies.users.detach', [$company, $user]) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Remove this user from company?')">Remove</button>
+                                            </form>
+                                        @else
+                                            <span class="text-muted small">No permission</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty
