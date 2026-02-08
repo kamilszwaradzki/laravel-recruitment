@@ -28,6 +28,9 @@ class Company extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class)->withTimestamps();
+        return $this->belongsToMany(User::class)
+            ->using(CompanyUser::class)
+            ->withPivot('role')
+            ->withTimestamps();
     }
 }
