@@ -15,17 +15,14 @@
                 </div>
             @endif
 
-            @php
-                $isCompanyMember = auth()->user()->companies()->where('company_id', $company->id)->exists();
-            @endphp
-
-            @if(!$isCompanyMember)
+            @cannot('manageMembers', $company)
                 <div class="alert alert-warning">
-                    <strong>Notice:</strong> You are not a member of this company. Only company members can remove users.
+                    <strong>Notice:</strong> You don’t have permission to manage company members.
                 </div>
             @endif
 
             <!-- Formularz dodawania użytkownika -->
+            @can('manageMembers', $company)
             <div class="card mb-4">
                 <div class="card-header">
                     <h5 class="mb-0">Assign User to Company</h5>
@@ -54,6 +51,7 @@
                     @endif
                 </div>
             </div>
+            @endcan
 
             <!-- Lista przypisanych użytkowników -->
             <div class="card">
@@ -86,7 +84,7 @@
                                     <td>{{ $user->email }}</td>
                                     <td>{{ $user->pivot->created_at ? $user->pivot->created_at->format('Y-m-d H:i') : 'N/A' }}</td>
                                     <td>
-                                        @if($isCompanyMember)
+                                        @can('manageMembers', $company)
                                             <form action="{{ route('companies.users.detach', [$company, $user]) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')

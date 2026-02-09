@@ -25,9 +25,7 @@ class CompanyUserController extends Controller
 
     public function attach(Request $request, Company $company, CompanyUserService $companyUserService)
     {
-        if ($company->users()->exists()) {
-            $this->authorize('manageMembers', $company);
-        }
+        $this->authorize('manageMembers', $company);
 
         $request->validate([
             'user_id' => 'required|exists:users,id',
