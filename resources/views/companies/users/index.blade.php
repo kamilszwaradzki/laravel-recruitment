@@ -79,6 +79,9 @@
                                         @if($user->id === auth()->id())
                                             <span class="badge bg-info">You</span>
                                         @endif
+                                        @if($user->pivot->isCaptain())
+                                            <span class="badge bg-warning">Captain</span>
+                                        @endif
                                     </td>
                                     <td>{{ $user->email }}</td>
                                     <td>{{ $user->pivot->created_at ? $user->pivot->created_at->format('Y-m-d H:i') : 'N/A' }}</td>
@@ -88,6 +91,11 @@
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Remove this user from company?')">Remove</button>
+                                            </form>
+                                            <form action="{{ route('companies.users.transfer', [$company, $user]) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('POST')
+                                                <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Transfer captain role with this user?')">Transfer</button>
                                             </form>
                                         @else
                                             <span class="text-muted small">No permission</span>

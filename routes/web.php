@@ -29,6 +29,8 @@ Route::middleware('auth')->group(function () {
         ->name('companies.users.attach');
     Route::delete('companies/{company}/users/{user}', [CompanyUserController::class, 'detach'])
         ->name('companies.users.detach');
+    Route::post('companies/{company}/users/{user}/transfer-captain', [CompanyUserController::class, 'transferCaptain'])
+        ->name('companies.users.transfer');
 });
 
 require __DIR__.'/auth.php';
