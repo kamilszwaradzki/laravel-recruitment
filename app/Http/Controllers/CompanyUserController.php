@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Models\User;
-use App\Services\AddUserToCompanyService;
-use App\Services\TransferCaptainService;
+use App\Services\CompanyUserService;
 use DomainException;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -24,7 +23,7 @@ class CompanyUserController extends Controller
         return view('companies.users.index', compact('company', 'users', 'availableUsers'));
     }
 
-    public function attach(Request $request, Company $company, AddUserToCompanyService $addUserToCompanyService)
+    public function attach(Request $request, Company $company, CompanyUserService $companyUserService)
     {
         if ($company->users()->exists()) {
             $this->authorize('manageMembers', $company);
@@ -36,7 +35,7 @@ class CompanyUserController extends Controller
 
         $user = User::findOrFail($request->user_id);
 
-        $addUserToCompanyService->add($company, $user);
+        $companyUserService->add($company, $user);
 
         return redirect()->route('companies.users.index', $company)
             ->with('success', 'User assigned to company successfully.');
@@ -60,11 +59,11 @@ class CompanyUserController extends Controller
             ->with('success', 'User removed from company successfully.');
     }
 
-    public function transferCaptain(Company $company, User $user, TransferCaptainService $transferCaptainService)
+    public function transferCaptain(Company $company, User $user, CompanyUserService $companyUserService)
     {
         $this->authorize('manageMembers', $company);
 
-        $transferCaptainService->transfer($company, auth()->user(), $user);
+        $companyUserService->transferCaptain($company, auth()->user(), $user);
 
         return redirect()->route('companies.users.index', $company)
             ->with('success', 'User transfered role successfully.');
