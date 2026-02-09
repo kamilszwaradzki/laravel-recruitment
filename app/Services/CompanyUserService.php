@@ -11,6 +11,9 @@ class CompanyUserService
 {
     public function add(Company $company, User $user): void
     {
+        if ($company->users()->where('user_id', $user->id)->exists()) {
+            throw new \DomainException('User is already a member of this company.');
+        }
         $role = $company->users()->exists()
             ? CompanyRole::MEMBER
             : CompanyRole::CAPTAIN;
@@ -42,5 +45,15 @@ class CompanyUserService
                 'role' => CompanyRole::CAPTAIN,
             ]);
         });
+    }
+
+    public function remove(Company $company, User $user): void
+    {
+        $member = $company->users()->findOrFail($user->id);
+        if ($member->pivot->isCaptain()) {
+            throw new \DomainException('Captain cannot remove himself');
+        }
+
+        $company->users()->detach($user->id);
     }
 }

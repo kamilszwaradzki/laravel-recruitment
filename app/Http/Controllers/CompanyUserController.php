@@ -41,19 +41,15 @@ class CompanyUserController extends Controller
             ->with('success', 'User assigned to company successfully.');
     }
 
-    public function detach(Company $company, User $user)
+    public function detach(Company $company, User $user, CompanyUserService $companyUserService)
     {
         $this->authorize('manageMembers', $company);
         // Sprawdź czy zalogowany user należy do tej firmy
         if (!auth()->user()->companies()->where('company_id', $company->id)->exists()) {
             abort(403, 'You must be a member of this company to remove users.');
         }
-        $member = $company->users()->findOrFail($user->id);
-        if ($member->pivot->isCaptain()) {
-            throw new DomainException('Captain cannot remove himself');
-        }
 
-        $company->users()->detach($user->id);
+        $companyUserService->remove($company, $user);
 
         return redirect()->route('companies.users.index', $company)
             ->with('success', 'User removed from company successfully.');
